@@ -50,7 +50,7 @@ const groupChatsByDate = (chats: Chat[]): GroupedChats => {
 
   return chats.reduce(
     (groups, chat) => {
-      const chatDate = new Date(chat.createdAt);
+      const chatDate = new Date(chat?.createdAt);
 
       if (isToday(chatDate)) {
         groups.today.push(chat);
@@ -86,7 +86,7 @@ export function getChatHistoryPaginationKey(
 
   if (pageIndex === 0) return `/api/history?limit=${PAGE_SIZE}`;
 
-  const firstChatFromPage = previousPageData.chats.at(-1);
+  const firstChatFromPage = previousPageData?.chats?.at(-1);
 
   if (!firstChatFromPage) return null;
 
@@ -116,7 +116,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     : false;
 
   const hasEmptyChatHistory = paginatedChatHistories
-    ? paginatedChatHistories.every((page) => page.chats.length === 0)
+    ? paginatedChatHistories.every((page) => page?.chats?.length === 0)
     : false;
 
   const handleDelete = async () => {
@@ -223,9 +223,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                         </div>
                         {groupedChats.today.map((chat) => (
                           <ChatItem
-                            key={chat.id}
+                            key={chat?.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat?.id === id}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
@@ -243,9 +243,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                         </div>
                         {groupedChats.yesterday.map((chat) => (
                           <ChatItem
-                            key={chat.id}
+                            key={chat?.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat?.id === id}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
@@ -263,9 +263,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                         </div>
                         {groupedChats.lastWeek.map((chat) => (
                           <ChatItem
-                            key={chat.id}
+                            key={chat?.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat?.id === id}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
@@ -283,9 +283,9 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                         </div>
                         {groupedChats.lastMonth.map((chat) => (
                           <ChatItem
-                            key={chat.id}
+                            key={chat?.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat?.id === id}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
@@ -296,23 +296,23 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
                       </div>
                     )}
 
-                    {groupedChats.older.length > 0 && (
+                    {groupedChats?.older?.length > 0 && (
                       <div>
                         <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
                           Older than last month
                         </div>
-                        {groupedChats.older.map((chat) => (
+                        {/* {groupedChats?.older?.map((chat) => (
                           <ChatItem
-                            key={chat.id}
+                            key={chat?.id}
                             chat={chat}
-                            isActive={chat.id === id}
+                            isActive={chat?.id === id}
                             onDelete={(chatId) => {
                               setDeleteId(chatId);
                               setShowDeleteDialog(true);
                             }}
                             setOpenMobile={setOpenMobile}
                           />
-                        ))}
+                        ))} */}
                       </div>
                     )}
                   </div>

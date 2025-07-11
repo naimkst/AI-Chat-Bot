@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BillingInfo {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @unique
+  plan              String
+  status            String
+  currentPeriodEnd  DateTime
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+}
+
+model User {
+  id               String          @id @default(cuid())
+  email            String          @unique
+  name             String?
+  sessions         Session[]
+  conversations    Conversation[]
+  billingInfo      BillingInfo?
+  stripeCustomerId String?
+}
+
+model Conversation {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  chats       Chat[]     @relation("ConversationToChat")
+  messages    Message[]  @relation("ConversationToMessage")
+  chat      Chat?
+  createdAt   DateTime   @default(now())
+}
+
+model Chat {
+  id               String        @id @default(cuid())
+  title            String?
+  model            String
+  createdAt        DateTime      @default(now())
+  messages         Message[]
+  conversationId   String?
+  conversation     Conversation? @relation("ConversationToChat", fields: [conversationId], references: [id])
+}
+
+model Message {
+  id               String        @id @default(cuid())
+  role             String
+  content          String
+  chatId           String
+  chat             Chat          @relation(fields: [chatId], references: [id])
+  conversationId   String
+  conversation     Conversation  @relation("ConversationToMessage", fields: [conversationId], references: [id])
+  createdAt        DateTime      @default(now())
+}
