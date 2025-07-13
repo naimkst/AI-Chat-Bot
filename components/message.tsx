@@ -44,11 +44,28 @@ const PurePreviewMessage = ({
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
 
-  const attachmentsFromMessage = message.parts.filter(
-    (part) => part.type === 'file',
+  const attachmentsFromMessage = message?.parts?.filter(
+    (part: any) => part.type === 'image_url',
   );
 
   useDataStream();
+
+  console.log("attachmentsFromMessage====", attachmentsFromMessage)
+
+
+  function getImageExtension(url: string): string | null {
+  try {
+    const parsedUrl = new URL(url);
+    const pathname = parsedUrl.pathname;
+    const filename = pathname.split('/').pop();
+    if (!filename) return null;
+
+    const extMatch = filename.match(/\.(png|jpg|jpeg|webp|gif)$/i);
+    return extMatch ? extMatch[1].toLowerCase() : null;
+  } catch {
+    return null;
+  }
+  }
 
   return (
     <AnimatePresence>
@@ -81,18 +98,19 @@ const PurePreviewMessage = ({
               'min-h-96': message.role === 'assistant' && requiresScrollPadding,
             })}
           >
-            {attachmentsFromMessage.length > 0 && (
+            {attachmentsFromMessage?.length > 0 && (
               <div
                 data-testid={`message-attachments`}
                 className="flex flex-row justify-end gap-2"
               >
-                {attachmentsFromMessage.map((attachment) => (
+                {attachmentsFromMessage?.map((attachment: any, index: number) => (
+                  console.log("attachment====", attachment),
                   <PreviewAttachment
-                    key={attachment.url}
+                    key={index}
                     attachment={{
-                      name: attachment.filename ?? 'file',
-                      contentType: attachment.mediaType,
-                      url: attachment.url,
+                      name: attachment?.image_url?.filename ?? 'file',
+                      contentType: getImageExtension(attachment?.image_url?.url) || 'image/jpeg',
+                      url: attachment?.image_url?.url,
                     }}
                   />
                 ))}

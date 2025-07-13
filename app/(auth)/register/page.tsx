@@ -9,7 +9,6 @@ import { SubmitButton } from '@/components/submit-button';
 
 import { register, type RegisterActionState } from '../actions';
 import { toast } from '@/components/toast';
-import { useSession } from 'next-auth/react';
 
 export default function Page() {
   const router = useRouter();
@@ -24,7 +23,6 @@ export default function Page() {
     },
   );
 
-  const { update: updateSession } = useSession();
 
   useEffect(() => {
     if (state.status === 'user_exists') {
@@ -40,15 +38,38 @@ export default function Page() {
       toast({ type: 'success', description: 'Account created successfully!' });
 
       setIsSuccessful(true);
-      updateSession();
       router.refresh();
+      router.push('/login');
     }
   }, [state]);
+const handleSubmit = async (formData: FormData) => {
+  const email = formData.get('email');
+  const password = formData.get('password');
+  const name = formData.get('name');
 
-  const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
-  };
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, name }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      toast({ type: 'success', description: 'Account created successfully!' });
+      setIsSuccessful(true);
+      router.refresh();
+      router.push('/login');
+    } else {
+      toast({ type: 'error', description: data.error || 'Failed to register' });
+    }
+  } catch (error) {
+    console.error('Registration error:', error);
+  }
+};
 
   return (
     <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">

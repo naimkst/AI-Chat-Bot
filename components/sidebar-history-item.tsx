@@ -1,4 +1,5 @@
-import type { Chat } from '@/lib/db/schema';
+'use client';
+
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -25,6 +26,9 @@ import {
 } from './icons';
 import { memo } from 'react';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
+import { toast } from '@/components/toast';
+import { useRouter } from 'next/navigation';
+import { mutate } from 'swr';
 
 const PureChatItem = ({
   chat,
@@ -32,7 +36,7 @@ const PureChatItem = ({
   onDelete,
   setOpenMobile,
 }: {
-  chat: Chat;
+  chat: any;
   isActive: boolean;
   onDelete: (chatId: string) => void;
   setOpenMobile: (open: boolean) => void;
@@ -42,11 +46,47 @@ const PureChatItem = ({
     initialVisibilityType: chat.visibility,
   });
 
+  const router = useRouter();
+
+  const deleteChat = async (id: string) => {
+    await fetch('/api/history-delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+   
+    //show toast
+    toast({ type: 'success', description: 'Chat deleted successfully!' });
+    mutate('/api/conversations');
+    router.refresh();
+    window.location.reload();
+  };
+
+
+  console.log("chat.messages[0].content====", chat.messages[0].content);
+
+function getTitle(rawContent: any) {
+  if (typeof rawContent === 'string' && rawContent.trim().startsWith('[')) {
+    try {
+      const parsed = JSON.parse(rawContent);
+      return parsed
+        .filter((part: any) => part.type === 'text')
+        .map((part: any) => part.text)
+        .join(' ');
+    } catch {
+      return rawContent; // fallback if JSON parse fails
+    }
+  }
+
+  return rawContent;
+}
+  
+  
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={isActive}>
-        <Link href={`/chat/${chat.id}`} onClick={() => setOpenMobile(false)}>
-          <span>{chat.title}</span>
+        <Link href={`/?id=${chat.id}`} onClick={() => setOpenMobile(false)}>
+          <span>{getTitle(chat.messages[0].content)}</span>
         </Link>
       </SidebarMenuButton>
 
@@ -101,7 +141,7 @@ const PureChatItem = ({
 
           <DropdownMenuItem
             className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
-            onSelect={() => onDelete(chat.id)}
+            onSelect={() => deleteChat(chat.id)}
           >
             <TrashIcon />
             <span>Delete</span>

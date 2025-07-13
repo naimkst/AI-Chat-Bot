@@ -24,7 +24,6 @@ export default function Page() {
     },
   );
 
-  const { update: updateSession } = useSession();
 
   useEffect(() => {
     if (state.status === 'failed') {
@@ -39,14 +38,34 @@ export default function Page() {
       });
     } else if (state.status === 'success') {
       setIsSuccessful(true);
-      updateSession();
       router.refresh();
+      router.push('/');
     }
   }, [state.status]);
 
-  const handleSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
+  const handleSubmit = async (formData: FormData) => {
+    const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast({ type: 'error', description: data.error || 'Login failed' });
+      return;
+    }
+
+    toast({ type: 'success', description: 'Login successful!' });
+    router.refresh();
+    router.push('/');
+  } catch (err) {
+    toast({ type: 'error', description: 'Unexpected error occurred.' });
+  }
   };
 
   return (

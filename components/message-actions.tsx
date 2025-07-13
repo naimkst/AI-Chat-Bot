@@ -63,7 +63,7 @@ export function PureMessageActions({
           <TooltipContent>Copy</TooltipContent>
         </Tooltip>
 
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button
               data-testid="message-upvote"
@@ -114,9 +114,9 @@ export function PureMessageActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Upvote Response</TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
 
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button
               data-testid="message-downvote"
@@ -167,7 +167,7 @@ export function PureMessageActions({
             </Button>
           </TooltipTrigger>
           <TooltipContent>Downvote Response</TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
       </div>
     </TooltipProvider>
   );

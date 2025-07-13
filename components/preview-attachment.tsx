@@ -11,7 +11,7 @@ export const PreviewAttachment = ({
 }) => {
   const { name, url, contentType } = attachment;
 
-  const isImage = contentType?.startsWith('image');
+  console.log("url====", contentType);
 
   return (
     <div data-testid="input-attachment-preview" className="flex flex-col gap-2">
@@ -20,7 +20,7 @@ export const PreviewAttachment = ({
           <div className="w-full h-full flex items-center justify-center text-zinc-400">
             <LoaderIcon size={24} />
           </div>
-        ) : isImage && url ? (
+        ) : contentType?.includes('png') || contentType?.includes('jpg') || contentType?.includes('jpeg') || contentType?.includes('webp') || contentType?.includes('gif') && url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={url}
@@ -34,9 +34,9 @@ export const PreviewAttachment = ({
           </div>
         )}
       </div>
-      <div className="text-xs text-zinc-500 max-w-16 truncate text-center">
+      {/* <div className="text-xs text-zinc-500 max-w-16 truncate text-center">
         {name || 'Uploading...'}
-      </div>
+      </div> */}
     </div>
   );
 };

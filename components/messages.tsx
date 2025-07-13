@@ -42,6 +42,7 @@ function PureMessages({
 
   useDataStream();
 
+
   return (
     <div
       ref={messagesContainerRef}

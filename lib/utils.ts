@@ -93,8 +93,8 @@ export function getTrailingMessageId({
   return trailingMessage.id;
 }
 
-export function sanitizeText(text: string) {
-  return text.replace('<has_function_call>', '');
+export function sanitizeText(text: string | null | undefined) {
+  return (text || '').replace('<has_function_call>', '');
 }
 
 export function convertToUIMessages(messages: DBMessage[]): ChatMessage[] {

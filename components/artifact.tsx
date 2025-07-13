@@ -314,7 +314,7 @@ function PureArtifact({
                 <ArtifactMessages
                   chatId={chatId}
                   status={status}
-                  votes={votes}
+                  // votes={votes}
                   messages={messages}
                   setMessages={setMessages}
                   regenerate={regenerate}

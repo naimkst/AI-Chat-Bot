@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { ChatHeader } from '@/components/chat-header';
-import type { Vote } from '@/lib/db/schema';
 import { fetcher, generateUUID } from '@/lib/utils';
 import { Artifact } from './artifact';
 import { MultimodalInput } from './multimodal-input';
@@ -18,6 +17,8 @@ import { useSearchParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import type { Attachment, ChatMessage } from '@/lib/types';
+import { useAuth } from '@/hooks/useAuth';
+import router from 'next/router';
 
 // ...all your imports remain the same...
 
@@ -31,129 +32,148 @@ export function Chat({
   autoResume,
 }: {
   id: string;
-  initialMessages: ChatMessage[];
+  initialMessages: any;
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
   session: Session;
-  autoResume: boolean;
+    autoResume: boolean;
 }) {
   const { visibilityType } = useChatVisibility({
     chatId: id,
     initialVisibilityType,
   });
 
-  const { mutate } = useSWRConfig();
   const [dataStream, setDataStream] = useState<string>('');
 
   const [input, setInput] = useState<string>('');
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<any>(initialMessages);
   const [status, setStatus] = useState<any>('ready');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const { user }: any = useAuth();
+
+  useEffect(() => {
+    if (!user) return; // wait for user to be loaded
+    setLoading(true);
+  }, [user]);
 
   // Manual streaming send function (replacement for SDK)
-  async function sendMessage(message: any) {
-    setStatus('streaming');
-    setDataStream('');
-    let streamed = '';
+async function sendMessage(message: any) {
+  setStatus('streaming');
+  setDataStream('');
+  let streamed = '';
+  let newConversationId: string | null = null;
 
-    // ✅ Add user's message with text and image parts
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        id: `${Date.now().toString()}-user`,
-        role: 'user',
-        parts: message.parts,
-      },
-    ]);
+  const userMessageId = `${Date.now().toString()}-user`;
+  const assistantId = `${Date.now().toString()}-assistant`;
 
-    // ✅ Add a placeholder for assistant message
-    const assistantId = `${Date.now().toString()}-assistant`;
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        id: assistantId,
-        role: 'assistant',
-        parts: [{ type: 'text', text: '' }],
-      },
-    ]);
+  console.log("message################", message);
+  // 1️⃣ Add user message placeholder
+  setMessages((msgs: any) => [
+    ...msgs,
+    {
+      id: userMessageId,
+      role: 'user',
+      parts: message.parts,
+    },
+    {
+      id: assistantId,
+      role: 'assistant',
+      parts: [{ type: 'text', text: '' }],
+    },
+  ]);
 
-    try {
-      const formattedMessage = {
-        model: 'gpt-4.1-mini',
-        messages: [
-          {
-            role: 'user',
-            content: message.parts.map((part: any) =>
-              part.type === 'file'
-                ? {
-                    type: 'image_url',
-                    image_url: { url: part.url },
-                  }
-                : {
-                    type: 'text',
-                    text: part.text,
-                  },
-            ),
-          },
-        ],
-        max_tokens: 300,
-      };
+  try {
+    // 2️⃣ Format OpenAI API message
+    const formattedMessage = {
+      model: 'gpt-4.1-mini',
+      messages: [
+        {
+          role: 'user',
+          content: message.parts.map((part: any) =>
+            part.type === 'file'
+              ? { type: 'image_url', image_url: { url: part.url } }
+              : { type: 'text', text: part.text }
+          ),
+        },
+      ],
+      max_tokens: 300,
+    };
 
-      const resp = await fetch('/api/chat/chatGPT', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: formattedMessage }),
-      });
+    // 3️⃣ Send request to your backend
+    const resp = await fetch('/api/chat/chatGPT', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user?.id,
+        message: formattedMessage,
+        id: id || null, // Existing conversationId or new
+      }),
+    });
 
-      if (!resp.body) return setStatus('idle');
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-
-      while (!done) {
-        const { value, done: isDone } = await reader.read();
-        done = isDone;
-        const chunk = decoder.decode(value || new Uint8Array());
-
-        chunk.split('\n').forEach((line) => {
-          if (line.startsWith('data: ')) {
-            try {
-              const obj = JSON.parse(line.slice(6));
-              const token = obj.choices?.[0]?.delta?.content;
-              if (token) {
-                streamed += token;
-                setDataStream((ds) => ds + token);
-
-                // ✅ Update assistant message in-place
-                setMessages((msgs) =>
-                  msgs.map((msg) =>
-                    msg.id === assistantId
-                      ? {
-                          ...msg,
-                          parts: [{ type: 'text', text: streamed }],
-                        }
-                      : msg,
-                  ),
-                );
-              }
-            } catch (e) {
-              console.error('JSON parse error:', e);
-            }
-          }
-        });
-      }
-
+    if (!resp.body) {
       setStatus('idle');
-      mutate(unstable_serialize(getChatHistoryPaginationKey));
-    } catch (err: any) {
-      setStatus('error');
-      toast({
-        type: 'error',
-        description: err?.message || 'Unknown streaming error',
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+
+    // 4️⃣ Stream OpenAI response and update assistant message
+    while (!done) {
+      const { value, done: isDone } = await reader.read();
+      done = isDone;
+      const chunk = decoder.decode(value || new Uint8Array());
+
+      chunk.split('\n').forEach((line) => {
+        if (line.startsWith('data: ')) {
+          try {
+            const obj = JSON.parse(line.slice(6));
+
+            // Save new conversationId from backend if provided
+            if (!newConversationId && obj.conversationId) {
+              newConversationId = obj.conversationId;
+            }
+
+            const token = obj.choices?.[0]?.delta?.content;
+            if (token) {
+              streamed += token;
+              setDataStream((ds) => ds + token);
+
+              setMessages((msgs: any) =>
+                msgs.map((msg: any) =>
+                  msg.id === assistantId
+                    ? {
+                        ...msg,
+                        parts: [{ type: 'text', text: streamed }],
+                      }
+                    : msg
+                )
+              );
+            }
+          } catch (err) {
+            console.error('Streaming parse error:', err);
+          }
+        }
       });
     }
+
+    setStatus('idle');
+
+    // 5️⃣ Update URL with new conversation id (optional)
+    if (newConversationId) {
+      window.history.replaceState({}, '', `?id=${newConversationId}`);
+    }
+  } catch (err: any) {
+    setStatus('error');
+    toast({
+      type: 'error',
+      description: err?.message || 'Streaming failed',
+    });
   }
+}
 
   // You can leave these as no-ops or implement if needed:
   const stop = async () => {};
@@ -163,26 +183,61 @@ export function Chat({
   // Everything else in your component stays the same!
 
   const searchParams = useSearchParams();
-  const query = searchParams.get('query');
-  const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
 
-  useEffect(() => {
-    if (query && !hasAppendedQuery) {
-      sendMessage({
-        role: 'user' as const,
-        parts: [{ type: 'text', text: query }],
-        id: generateUUID(),
-      });
-      setHasAppendedQuery(true);
-      window.history.replaceState({}, '', `/chat/${id}`);
-    }
-    // eslint-disable-next-line
-  }, [query, sendMessage, hasAppendedQuery, id]);
 
-  const { data: votes } = useSWR<Array<Vote>>(
-    messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher,
-  );
+useEffect(() => {
+  async function loadConversation() {
+    if (!id) return;
+
+    const res = await fetch('/api/conversation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }), // sending conversationId in body
+    });
+
+    const { data } = await res.json();
+
+    const formatted = data.map((msg: any) => {
+      let parts = [];
+
+      try {
+        parts = JSON.parse(msg.content);
+      } catch (e) {
+        parts = [{ type: 'text', text: msg.content || 'Empty message' }];
+      }
+
+      return {
+        id: `${new Date(msg.createdAt).getTime()}-${msg.role}`,
+        role: msg.role,
+        parts,
+      };
+    });
+
+    console.log("formatted=====", formatted);
+    setMessages(formatted);
+  }
+
+  loadConversation();
+}, [id]);
+  
+
+  // useEffect(() => {
+  //   if (query && !hasAppendedQuery) {
+  //     sendMessage({
+  //       role: 'user' as const,
+  //       parts: [{ type: 'text', text: query }],
+  //       id: generateUUID(),
+  //     });
+  //     setHasAppendedQuery(true);
+  //     window.history.replaceState({}, '', `/chat/${id}`);
+  //   }
+  //   // eslint-disable-next-line
+  // }, [query, sendMessage, hasAppendedQuery, id]);
+
+  // const { data: votes } = useSWR<Array<Vote>>(
+  //   messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
+  //   fetcher,
+  // );
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
@@ -197,8 +252,12 @@ export function Chat({
   // (Optional) For debug:
   // console.log("=============dataStream", dataStream);
 
+  if (!loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <>
+      {user?.id}
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}
@@ -211,7 +270,7 @@ export function Chat({
         <Messages
           chatId={id}
           status={status}
-          votes={votes}
+          // votes={votes}
           messages={messages}
           setMessages={setMessages}
           regenerate={regenerate}
@@ -250,7 +309,7 @@ export function Chat({
         messages={messages}
         setMessages={setMessages}
         regenerate={regenerate}
-        votes={votes}
+        // votes={votes}
         isReadonly={isReadonly}
         selectedVisibilityType={visibilityType}
       />
