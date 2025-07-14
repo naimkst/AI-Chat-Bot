@@ -37,7 +37,6 @@ export function SidebarUserNav({ user }: { user: User }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {authenticated ? (
               <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10 justify-between">
                 <div className="flex flex-row gap-2">
                   <div className="size-6 bg-zinc-500/30 rounded-full animate-pulse" />
@@ -49,7 +48,6 @@ export function SidebarUserNav({ user }: { user: User }) {
                   <LoaderIcon />
                 </div>
               </SidebarMenuButton>
-            ) : (
               <SidebarMenuButton
                 data-testid="user-nav-button"
                 className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10"
@@ -62,11 +60,10 @@ export function SidebarUserNav({ user }: { user: User }) {
                   className="rounded-full"
                 />
                 <span data-testid="user-email" className="truncate">
-                  {isGuest ? 'Guest' : user?.email}
+                  user@email.com
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
-            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent
             data-testid="user-nav-menu"
@@ -86,7 +83,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 type="button"
                 className="w-full cursor-pointer"
                 onClick={() => {
-                  if (status === 'loading') {
+                  if (loading) {
                     toast({
                       type: 'error',
                       description:

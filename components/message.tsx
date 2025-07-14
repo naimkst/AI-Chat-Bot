@@ -135,7 +135,7 @@ const PurePreviewMessage = ({
                 if (mode === 'view') {
                   return (
                     <div key={key} className="flex flex-row gap-2 items-start">
-                      {message.role === 'user' && !isReadonly && (
+                      {/* {message.role === 'user' && !isReadonly && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -151,7 +151,7 @@ const PurePreviewMessage = ({
                           </TooltipTrigger>
                           <TooltipContent>Edit message</TooltipContent>
                         </Tooltip>
-                      )}
+                      )} */}
 
                       <div
                         data-testid="message-content"
