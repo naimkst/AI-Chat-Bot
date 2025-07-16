@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import SubscribeButton from '@/components/SubscribeButton';
+import { useLoader } from '@/store/useLoaderStore';
 
 export default function Page() {
 
@@ -23,8 +24,7 @@ export default function Page() {
   const chatId = "";
   const { loading, authenticated, user } = useAuth();
   
-
-  console.log("user?.email========", id);
+     const { loader }: any = useLoader();
 
 
 useEffect(() => {
@@ -42,10 +42,9 @@ useEffect(() => {
   }
 
   if (id) fetchMessages();
-}, [id]);
+}, [id, loader]);
 
 
-  console.log("messages========", messages);
 
   return (
     <>
@@ -62,10 +61,6 @@ useEffect(() => {
       />
       <DataStreamHandler />
       </ClientOnly>
-
-       <main className="min-h-screen flex justify-center items-center">
-      <SubscribeButton />
-    </main>
       </>
   );
 }

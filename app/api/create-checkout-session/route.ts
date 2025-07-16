@@ -1,13 +1,30 @@
 import Stripe from 'stripe';
 import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
 });
 
 export async function POST(req: NextRequest) {
-  const { priceId } = await req.json();
   try {
+    const { priceId, userId } = await req.json();
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Missing userId' }), { status: 400 });
+    }
+
+    const subscription = await prisma.userSubscription.findFirst({
+      where: { userId },
+    });
+
+    if (subscription) {
+      await prisma.userSubscription.delete({
+        where: { userId },
+      });
+    }
+
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -19,7 +36,7 @@ export async function POST(req: NextRequest) {
               name: 'Monthly Subscription',
               description: 'Access to premium features',
             },
-            unit_amount: Number(priceId) * 100, // $20.00 (in cents)
+            unit_amount: Number(priceId) * 100,
             recurring: {
               interval: 'month',
             },
@@ -28,7 +45,11 @@ export async function POST(req: NextRequest) {
         },
       ],
       success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'http://localhost:3000/cancel',
+      cancel_url: 'http://localhost:3000/pricing',
+      metadata: {
+        userId: userId,
+        planPrice: Number(priceId) * 100,
+      },
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

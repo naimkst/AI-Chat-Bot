@@ -42,6 +42,7 @@ function PureMessages({
 
   useDataStream();
 
+  console.log("messages.length====================", messages.length, messages)
 
   return (
     <div

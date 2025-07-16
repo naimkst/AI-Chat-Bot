@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     // ✅ Always create a new Chat
     const chat = await prisma.chat.create({
       data: {
-        model: 'gpt-4.1-mini',
+        model: 'gpt-4o',
         conversationId,
       },
     });
@@ -55,6 +55,11 @@ export async function POST(req: NextRequest) {
     const completion: any = await openai.chat.completions.create({
       ...message,
       stream: true,
+      model: 'gpt-4o',
+      temperature: 1.4,
+      max_tokens: 5000,
+      top_p: 1.0,
+      // top_k: 100,
     });
 
     const encoder = new TextEncoder();

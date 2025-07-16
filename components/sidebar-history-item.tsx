@@ -29,6 +29,7 @@ import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { toast } from '@/components/toast';
 import { useRouter } from 'next/navigation';
 import { mutate } from 'swr';
+import { useLoader } from '@/store/useLoaderStore';
 
 const PureChatItem = ({
   chat,
@@ -47,6 +48,7 @@ const PureChatItem = ({
   });
 
   const router = useRouter();
+       const { loader, setLoader }: any = useLoader();
 
   const deleteChat = async (id: string) => {
     await fetch('/api/history-delete', {
@@ -59,7 +61,7 @@ const PureChatItem = ({
     toast({ type: 'success', description: 'Chat deleted successfully!' });
     mutate('/api/conversations');
     router.refresh();
-    window.location.reload();
+    // window.location.reload();
   };
 
 
@@ -102,7 +104,7 @@ function getTitle(rawContent: any) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent side="bottom" align="end">
-          <DropdownMenuSub>
+          {/* <DropdownMenuSub>
             <DropdownMenuSubTrigger className="cursor-pointer">
               <ShareIcon />
               <span>Share</span>
@@ -137,11 +139,11 @@ function getTitle(rawContent: any) {
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
-          </DropdownMenuSub>
+          </DropdownMenuSub> */}
 
           <DropdownMenuItem
             className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
-            onSelect={() => deleteChat(chat.id)}
+            onSelect={() => {deleteChat(chat.id), setLoader(Math.random())}}
           >
             <TrashIcon />
             <span>Delete</span>

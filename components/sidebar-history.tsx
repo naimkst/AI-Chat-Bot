@@ -28,6 +28,7 @@ import { ChatItem } from './sidebar-history-item';
 import useSWRInfinite from 'swr/infinite';
 import { LoaderIcon } from './icons';
 import { useAuth } from '@/hooks/useAuth';
+import { useLoader } from '@/store/useLoaderStore';
 
 type GroupedChats = {
   today: Chat[];
@@ -101,6 +102,7 @@ export function SidebarHistory() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const router = useRouter();
+    const { loader, setLoader }: any = useLoader();
 
   useEffect(() => {
     async function fetchChats() {
@@ -112,7 +114,7 @@ export function SidebarHistory() {
       }
     }
     fetchChats();
-  }, [user?.id]);
+  }, [user?.id, loader]);
 
   const groupedChats: any = groupChatsByDate(chats);
 
@@ -120,8 +122,10 @@ export function SidebarHistory() {
     const res = await fetch(`/api/chat?id=${deleteId}`, { method: 'DELETE' });
     if (res.ok) {
       setChats(chats.filter((chat: any) => chat.id !== deleteId));
+      setLoader(Math.random());
       setShowDeleteDialog(false);
       if (deleteId === id) router.push('/');
+
     }
   };
 

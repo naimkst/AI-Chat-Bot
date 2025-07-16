@@ -18,11 +18,15 @@ import {
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useAuth } from '@/hooks/useAuth';
+import { useLoader } from '@/store/useLoaderStore';
 
 export function AppSidebar() {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
-   const { loading, authenticated, user } = useAuth();
+  const { loading, authenticated, user } = useAuth();
+  
+  const { setLoader }: any = useLoader();
+
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
@@ -48,6 +52,7 @@ export function AppSidebar() {
                   className="p-2 h-fit"
                   onClick={() => {
                     setOpenMobile(false);
+                    setLoader(Math.random());
                     router.push('/');
                     router.refresh();
                   }}

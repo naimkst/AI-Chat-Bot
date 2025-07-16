@@ -22,6 +22,7 @@ model User {
   conversations      Conversation[]
   billingInfo        BillingInfo?
   verificationTokens EmailVerificationToken[]
+  UserSubscription   UserSubscription[]
 }
 
 model Session {
@@ -78,4 +79,17 @@ model EmailVerificationToken {
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model UserSubscription {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  stripeSubscriptionId String
+  stripeCustomerId     String
+  planAmount           Int
+  status               String
+  interval             String
+  createdAt            DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id]) // 👈 Relation setup
 }

@@ -1,6 +1,9 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { LoaderIcon } from 'lucide-react';
+import { toast } from '@/components/toast';
 
 type Plan = {
   name: string;
@@ -53,12 +56,16 @@ const plans: Plan[] = [
 
 export default function PricingPage() {
   const router = useRouter();
+  const [plandetails, setPlanDetails] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+    const { loading, authenticated, user }: any = useAuth();
 
   const handleSubscribe = async (priceId?: string) => {
     if (!priceId) return;
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
-      body: JSON.stringify({ priceId }),
+      body: JSON.stringify({ userId: user?.id,priceId: priceId }),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -72,12 +79,61 @@ export default function PricingPage() {
     }
   };
 
+   const cancelSubscription = async () => {
+    const res = await fetch('/api/cancel-subscription', {
+      method: 'POST',
+      body: JSON.stringify({ userId: user?.id }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (res.ok) {
+      window.location.href = '/pricing';
+      toast({
+        type: 'success',
+        description: 'Subscription canceled successfully',
+      });
+    } else {
+      toast({
+        type: 'error',
+        description: 'Failed to cancel subscription',
+      });
+    }
+   };
+  
+  
+
+
+  useEffect(() => {
+    async function fetchPlan() {
+      if (!user?.id) return;
+      try {
+        const res = await fetch(`/api/subscription?user_id=${user?.id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setPlanDetails(data.subscription);
+        } else {
+          setError(data.error);
+        }
+      } catch (e) {
+        setError('Failed to fetch subscription');
+      }
+    }
+
+    fetchPlan();
+  }, [user?.id]);
+
+
+
+  console.log("plan====", plandetails);
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-16">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-5xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Plans & Billing</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan) => (
+          {plans.map((plan, index) => (
             <div
               key={plan.name}
               className="rounded-xl border border-gray-200 p-6 flex flex-col items-center text-center"
@@ -102,21 +158,29 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              {plan.current ? (
+              {/* { index == 0 ? (
                 <button
-                  disabled
                   className="bg-gray-100 text-gray-500 font-medium px-6 py-2 rounded w-full"
                 >
-                  Current Plan
+                 {plan?.price * 100 == plandetails?.planAmount ? 'Current Plan' : 'Subscribe'}
                 </button>
               ) : (
-                <button
-                  onClick={() => handleSubscribe(plan?.price?.toString())}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded w-full"
+                  <button
+                    disabled={plan?.price * 100 == plandetails?.planAmount}
+                  onClick={() =>  plan?.price * 100 == plandetails?.planAmount ? cancelSubscription() :  handleSubscribe(plan?.price?.toString())}
+                  className={`${plan?.price * 100 == plandetails?.planAmount ? 'bg-gray-100 text-gray-500 font-medium px-6 py-2 rounded w-full' : 'bg-gray-800 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded w-full'}`}
                 >
-                  Upgrade
+                  {plan?.price * 100 == plandetails?.planAmount ? 'Current Plan' : 'Subscribe'}
                 </button>
-              )}
+              )} */}
+
+              <button
+                    disabled={plan?.price * 100 == plandetails?.planAmount}
+                  onClick={() =>  plan?.price * 100 == plandetails?.planAmount ? cancelSubscription() :  handleSubscribe(plan?.price?.toString())}
+                  className={`${plan?.price * 100 == plandetails?.planAmount ? 'bg-gray-100 text-gray-500 font-medium px-6 py-2 rounded w-full' : 'bg-gray-800 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded w-full'}`}
+                >
+                  {plan?.price * 100 == plandetails?.planAmount ? 'Current Plan' : 'Subscribe'}
+                </button>
             </div>
           ))}
         </div>

@@ -103,13 +103,12 @@ export function SidebarUserNav() {
           >
 
              <DropdownMenuItem asChild data-testid="user-nav-item-auth">
-              <button
+              <a href="/pricing"
                 type="button"
                 className="w-full cursor-pointer"
-                onClick={() => handleCustomLogout(loading, router)}
               >
                 Subscriptions
-              </button>
+              </a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

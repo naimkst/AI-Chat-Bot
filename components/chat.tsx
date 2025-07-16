@@ -19,6 +19,7 @@ import { useAutoResume } from '@/hooks/use-auto-resume';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { useAuth } from '@/hooks/useAuth';
 import router from 'next/router';
+import { useLoader } from '@/store/useLoaderStore';
 
 // ...all your imports remain the same...
 
@@ -47,9 +48,10 @@ export function Chat({
   const [dataStream, setDataStream] = useState<string>('');
 
   const [input, setInput] = useState<string>('');
-  const [messages, setMessages] = useState<any>(initialMessages);
+  const [messages, setMessages] = useState<any>([]);
   const [status, setStatus] = useState<any>('ready');
   const [loading, setLoading] = useState<boolean>(false);
+   const { loader }: any = useLoader();
 
   const { user }: any = useAuth();
 
@@ -68,7 +70,6 @@ async function sendMessage(message: any) {
   const userMessageId = `${Date.now().toString()}-user`;
   const assistantId = `${Date.now().toString()}-assistant`;
 
-  console.log("message################", message);
   // 1️⃣ Add user message placeholder
   setMessages((msgs: any) => [
     ...msgs,
@@ -218,7 +219,10 @@ useEffect(() => {
   }
 
   loadConversation();
-}, [id]);
+}, [id, loader]);
+  
+  
+  console.log("messages========", messages)
   
 
   // useEffect(() => {
@@ -257,7 +261,6 @@ useEffect(() => {
   }
   return (
     <>
-      {user?.id}
       <div className="flex flex-col min-w-0 h-dvh bg-background">
         <ChatHeader
           chatId={id}

@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -11,7 +10,8 @@ export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+  }) {
+  
   
 
   return (
@@ -22,7 +22,7 @@ export default async function Layout({
       />
       <DataStreamProvider>
         <SidebarProvider defaultOpen={true}>
-          <AppSidebar user={null} />
+          <AppSidebar />
           <SidebarInset>{children}</SidebarInset>
         </SidebarProvider>
       </DataStreamProvider>
