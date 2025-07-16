@@ -17,10 +17,12 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useAuth } from '@/hooks/useAuth';
 
-export function AppSidebar({ user }: { user: User | undefined }) {
+export function AppSidebar() {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+   const { loading, authenticated, user } = useAuth();
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
@@ -61,7 +63,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       <SidebarContent>
         <SidebarHistory user={user} />
       </SidebarContent>
-      <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
+      <SidebarFooter>{authenticated && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>
   );
 }

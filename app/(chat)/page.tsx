@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import SubscribeButton from '@/components/SubscribeButton';
 
 export default function Page() {
 
@@ -61,6 +62,10 @@ useEffect(() => {
       />
       <DataStreamHandler />
       </ClientOnly>
+
+       <main className="min-h-screen flex justify-center items-center">
+      <SubscribeButton />
+    </main>
       </>
   );
 }

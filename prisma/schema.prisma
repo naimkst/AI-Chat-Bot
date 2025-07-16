@@ -8,16 +8,20 @@ datasource db {
 }
 
 model User {
-  id                     String                   @id @default(cuid())
-  email                  String                   @unique
-  name                   String?
-  password               String
-  emailVerified          Boolean?
-  stripeCustomerId       String?
-  sessions               Session[]
-  conversations          Conversation[]
-  billingInfo            BillingInfo?
-  verificationTokens     EmailVerificationToken[]
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  password         String
+  emailVerified    Boolean?
+  stripeCustomerId String?
+
+  subscriptionPlan   String? // e.g., "2000" or "premium"
+  subscriptionStatus String? // e.g., "active"
+
+  sessions           Session[]
+  conversations      Conversation[]
+  billingInfo        BillingInfo?
+  verificationTokens EmailVerificationToken[]
 }
 
 model Session {
@@ -38,21 +42,21 @@ model BillingInfo {
 }
 
 model Conversation {
-  id       String    @id @default(cuid())
-  userId   String
-  user     User      @relation(fields: [userId], references: [id])
-  chats    Chat[]
-  messages Message[]
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  chats     Chat[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
 }
 
 model Chat {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   model          String
   conversationId String
-  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
   messages       Message[]
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime     @default(now())
 }
 
 model Message {
