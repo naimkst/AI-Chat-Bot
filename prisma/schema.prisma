@@ -23,6 +23,30 @@ model User {
   billingInfo        BillingInfo?
   verificationTokens EmailVerificationToken[]
   UserSubscription   UserSubscription[]
+  usage              UserSubscriptionUsage?
+}
+
+model UserSubscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  stripeSubscriptionId String
+  stripeCustomerId     String
+  planAmount           Int
+  status               String
+  interval             String
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id]) // 👈 Relation setup
+}
+
+model UserSubscriptionUsage {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  messageCount Int       @default(0)
+  lastResetAt  DateTime? @default(now())
+  user         User      @relation(fields: [userId], references: [id])
+  createdAt    DateTime  @default(now())
 }
 
 model Session {
@@ -79,17 +103,4 @@ model EmailVerificationToken {
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
-}
-
-model UserSubscription {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
-  stripeSubscriptionId String
-  stripeCustomerId     String
-  planAmount           Int
-  status               String
-  interval             String
-  createdAt            DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id]) // 👈 Relation setup
 }

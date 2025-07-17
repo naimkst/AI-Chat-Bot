@@ -59,6 +59,7 @@ const PureChatItem = ({
    
     //show toast
     toast({ type: 'success', description: 'Chat deleted successfully!' });
+    setLoader(Math.random());
     mutate('/api/conversations');
     router.refresh();
     // window.location.reload();

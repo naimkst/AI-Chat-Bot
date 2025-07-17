@@ -19,11 +19,7 @@ const plans: Plan[] = [
     name: 'Free',
     price: 0,
     features: [
-      '10 AI messages',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
+      '5 messages total',
     ],
     current: true,
   },
@@ -33,11 +29,7 @@ const plans: Plan[] = [
     stripePriceId: 'price_12345_PRO', // replace with your real Stripe price ID
     popular: true,
     features: [
-      '100 AI messages',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
+      '100 messages per month',
     ],
   },
   {
@@ -45,11 +37,7 @@ const plans: Plan[] = [
     price: 20,
     stripePriceId: 'price_12345_PREMIUM', // replace with your real Stripe price ID
     features: [
-      '500 AI messages',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
-      'Everything in Free',
+      '200 messages per month',
     ],
   },
 ];

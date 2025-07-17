@@ -37,7 +37,7 @@ export function Chat({
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  session: Session;
+  session?: Session;
     autoResume: boolean;
 }) {
   const { visibilityType } = useChatVisibility({
@@ -113,6 +113,15 @@ async function sendMessage(message: any) {
       }),
     });
 
+    // ✅ Check for message limit (403)
+    if (resp.status === 403) {
+      const { error } = await resp.json();
+      toast({ type: 'error', description: error || 'You’ve reached your limit. Please upgrade your plan.' });
+
+      setStatus('idle');
+      return;
+    }
+
     if (!resp.body) {
       setStatus('idle');
       return;
@@ -121,6 +130,9 @@ async function sendMessage(message: any) {
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
     let done = false;
+
+
+   
 
     // 4️⃣ Stream OpenAI response and update assistant message
     while (!done) {

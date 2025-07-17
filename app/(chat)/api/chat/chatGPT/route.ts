@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkAndResetMessageCount } from '@/lib/checkAndResetMessageCount';
 
 const openai = new OpenAI();
 
@@ -12,28 +13,102 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: 'Missing userId' }), { status: 400 });
     }
 
-    const userMessageParts = message?.messages?.[0]?.content || [];
-    const hasText = userMessageParts.some((part: any) => part.type === 'text');
-    const userMessageText = hasText
-      ? userMessageParts.find((part: any) => part.type === 'text')?.text
-      : '';
 
+    // Check subscription and usage
+    const subscription = await prisma.userSubscription.findUnique({ where: { userId } });
+    const usage = await prisma.userSubscriptionUsage.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Strip time
+
+    const expiryDate = new Date(subscription?.currentPeriodEnd || '');
+    expiryDate.setHours(0, 0, 0, 0); // Strip time
+
+    const isExpired = expiryDate < today;
+
+    console.log('isExpired======================', isExpired)
+    console.log('expiryDate======================', expiryDate)
+    console.log('today======================', today)
+    
+   if (isExpired) {
+      return new Response(JSON.stringify({
+          error: 'Your subscription has expired. Please renew your subscription.',
+        }), {
+          status: 403,
+        });
+    }
+
+    if(!subscription){
+      // Create a free plan
+      const subscription = await prisma.userSubscription.create({
+        data: {
+          userId,
+          stripeSubscriptionId: '',
+          stripeCustomerId: '',
+          planAmount: 0,
+          status: 'active',
+          interval: 'month',
+        },
+      });
+    }
+
+
+      const getUser: any = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+        UserSubscription: true,
+        usage: true,
+      },
+    });
+
+    if (
+      getUser.UserSubscription?.[0]?.planAmount === 0 &&
+      getUser.usage?.messageCount >= 5
+    ) {
+      return new Response(JSON.stringify({
+          error: 'You have reached your 5-message limit. Please upgrade your plan.',
+        }), {
+          status: 403,
+        });
+    }
+    if (
+      getUser.UserSubscription?.[0]?.planAmount === 1000 &&
+      getUser.usage?.messageCount >= 100
+    ) {
+      return new Response(JSON.stringify({
+          error: 'You have reached your 100-message limit. Please upgrade your plan.',
+        }), {
+          status: 403,
+        });
+    }
+
+     if (
+      getUser.UserSubscription?.[0]?.planAmount === 2000 &&
+      getUser.usage?.messageCount >= 200
+    ) {
+      return new Response(JSON.stringify({
+          error: 'You have reached your 200-message limit. Please upgrade your plan.',
+        }), {
+          status: 403,
+        });
+    }
+
+    // Create conversation if not exists
     let conversationId = conversationIdFromBody;
-
-    // ✅ If no conversationId, create a new one
     if (!conversationId) {
       const conversation = await prisma.conversation.create({
         data: {
-          user: {
-            connect: { id: userId },
-          },
+          user: { connect: { id: userId } },
         },
       });
-
       conversationId = conversation.id;
     }
 
-    // ✅ Always create a new Chat
+    // Create chat
     const chat = await prisma.chat.create({
       data: {
         model: 'gpt-4o',
@@ -41,25 +116,30 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // ✅ Save full user message parts (JSON.stringify)
+    // Save user message
+    const userMessageParts = message?.messages?.[0]?.content || [];
     await prisma.message.create({
       data: {
         role: 'user',
-        content: JSON.stringify(userMessageParts), // 👈 store as JSON string
+        content: JSON.stringify(userMessageParts),
         chatId: chat.id,
         conversationId,
       },
     });
 
-    // ✅ Call OpenAI with stream
+    // Increment message count
+    await prisma.userSubscriptionUsage.update({
+      where: { userId },
+      data: { messageCount: { increment: 1 } },
+    });
+
+    // OpenAI response
     const completion: any = await openai.chat.completions.create({
       ...message,
       stream: true,
       model: 'gpt-4o',
       temperature: 1.4,
       max_tokens: 5000,
-      top_p: 1.0,
-      // top_k: 100,
     });
 
     const encoder = new TextEncoder();
@@ -75,33 +155,20 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // ✅ Save assistant response (you could also wrap it in parts array)
         if (assistantReply) {
           await prisma.message.create({
             data: {
               role: 'assistant',
-              content: JSON.stringify([
-                {
-                  type: 'text',
-                  text: assistantReply,
-                },
-              ]),
+              content: JSON.stringify([{ type: 'text', text: assistantReply }]),
               chatId: chat.id,
               conversationId,
             },
           });
         }
 
-        // ✅ Send final message with conversationId
         controller.enqueue(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              done: true,
-              conversationId,
-            })}\n\n`
-          )
+          encoder.encode(`data: ${JSON.stringify({ done: true, conversationId })}\n\n`)
         );
-
         controller.close();
       },
     });
@@ -115,12 +182,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error('API Error:', err);
-    return new Response(
-      JSON.stringify({ error: err?.message || 'Server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: err.message || 'Server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

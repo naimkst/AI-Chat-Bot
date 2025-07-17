@@ -122,10 +122,9 @@ export function SidebarHistory() {
     const res = await fetch(`/api/chat?id=${deleteId}`, { method: 'DELETE' });
     if (res.ok) {
       setChats(chats.filter((chat: any) => chat.id !== deleteId));
-      setLoader(Math.random());
       setShowDeleteDialog(false);
       if (deleteId === id) router.push('/');
-
+      setLoader(Math.random());
     }
   };
 

@@ -117,6 +117,7 @@ const PurePreviewMessage = ({
               </div>
             )}
 
+
             {message.parts?.map((part, index) => {
               const { type } = part;
               const key = `message-${message.id}-part-${index}`;
@@ -129,6 +130,22 @@ const PurePreviewMessage = ({
                     reasoning={part.text}
                   />
                 );
+              }
+
+              console.log("part====", part)
+
+              if(type === 'file') {
+                return (
+                  <div className='flex flex-row justify-end gap-2' key={index}>
+                  <PreviewAttachment
+                    attachment={{
+                      name: part?.filename ?? 'file',
+                      contentType: getImageExtension(part?.url) || 'image/jpeg',
+                      url: part?.url,
+                    }}
+                  />
+                  </div>
+                )
               }
 
               if (type === 'text') {

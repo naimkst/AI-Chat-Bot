@@ -28,6 +28,7 @@ import { ArrowDown } from 'lucide-react';
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
 import type { VisibilityType } from './visibility-selector';
 import type { Attachment, ChatMessage } from '@/lib/types';
+import { useLoader } from '@/store/useLoaderStore';
 
 function PureMultimodalInput({
   chatId,
@@ -58,6 +59,8 @@ function PureMultimodalInput({
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { width } = useWindowSize();
+
+    const { loader, setLoader }: any = useLoader();
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -241,16 +244,19 @@ function PureMultimodalInput({
             chatId={chatId}
             selectedVisibilityType={selectedVisibilityType}
           />
-        )}
+        )} */}
 
       <input
         type="file"
         className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
         ref={fileInputRef}
         multiple
-        onChange={handleFileChange}
+        onChange={(e) => {
+          handleFileChange(e);
+          setLoader(Math.random());
+        }}
         tabIndex={-1}
-      /> */}
+      />
 
       {(attachments.length > 0 || uploadQueue.length > 0) && (
         <div
@@ -297,8 +303,6 @@ function PureMultimodalInput({
             !event.nativeEvent.isComposing
           ) {
             event.preventDefault();
-
-            console.log('status========', status);
 
             if (status === 'submitted') {
               toast.error('Please wait for the model to finish its response!');
@@ -356,7 +360,7 @@ function PureAttachmentsButton({
         event.preventDefault();
         fileInputRef.current?.click();
       }}
-      // disabled={status !== 'ready'}
+      disabled={status !== 'ready'}
       variant="ghost"
     >
       <PaperclipIcon size={14} />
