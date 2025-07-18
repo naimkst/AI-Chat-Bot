@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
       where: { userId },
     });
 
+
+    if(subscription){
+      await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
+    }
+
     if (subscription) {
       await prisma.userSubscription.delete({
         where: { userId },

@@ -114,7 +114,10 @@ export default function PricingPage() {
 
 
 
-  console.log("plan====", plandetails);
+
+  if (!authenticated) {
+    router.push('/login');
+  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-16">

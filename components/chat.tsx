@@ -51,7 +51,7 @@ export function Chat({
   const [messages, setMessages] = useState<any>([]);
   const [status, setStatus] = useState<any>('ready');
   const [loading, setLoading] = useState<boolean>(false);
-   const { loader }: any = useLoader();
+  const { loader, setLoader }: any = useLoader();
 
   const { user }: any = useAuth();
 
@@ -178,6 +178,7 @@ async function sendMessage(message: any) {
     // 5️⃣ Update URL with new conversation id (optional)
     if (newConversationId) {
       window.history.replaceState({}, '', `?id=${newConversationId}`);
+      setLoader(Math.random());
     }
   } catch (err: any) {
     setStatus('error');

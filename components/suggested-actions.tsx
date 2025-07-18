@@ -6,6 +6,7 @@ import { memo } from 'react';
 import type { UseChatHelpers } from '@ai-sdk/react';
 import type { VisibilityType } from './visibility-selector';
 import type { ChatMessage } from '@/lib/types';
+import { useLoader } from '@/store/useLoaderStore';
 
 interface SuggestedActionsProps {
   chatId: string;
@@ -18,6 +19,7 @@ function PureSuggestedActions({
   sendMessage,
   selectedVisibilityType,
 }: SuggestedActionsProps) {
+  const { setLoader }: any = useLoader();
   const suggestedActions = [
     {
       title: 'What are the advantages',
@@ -59,6 +61,7 @@ function PureSuggestedActions({
             variant="ghost"
             onClick={async () => {
               window.history.replaceState({}, '', `/?id=${chatId}`);
+              setLoader(Math.random());
 
               sendMessage({
                 role: 'user',
