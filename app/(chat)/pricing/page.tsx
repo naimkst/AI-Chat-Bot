@@ -115,9 +115,10 @@ export default function PricingPage() {
 
 
 
-  if (!authenticated) {
-    router.push('/login');
-  }
+  // if (!user) {
+  //   router.push('/login');
+  //   return;
+  // }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-16">

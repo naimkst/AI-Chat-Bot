@@ -138,8 +138,8 @@ export async function POST(req: NextRequest) {
       ...message,
       stream: true,
       model: 'gpt-4o',
-      temperature: 1.4,
-      max_tokens: 5000,
+      // temperature: 1.4,
+      // max_tokens: 5000,
     });
 
     const encoder = new TextEncoder();
