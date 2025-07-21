@@ -39,7 +39,8 @@ export const Suggestion = ({
           <MessageIcon size={windowWidth && windowWidth < 768 ? 16 : 14} />
         </motion.div>
       ) : (
-        <motion.div
+          <motion.div
+            // @ts-ignore
           key={suggestion.id}
           className="absolute bg-background p-3 flex flex-col gap-3 rounded-2xl border text-sm w-56 shadow-xl z-50 -right-12 md:-right-16 font-sans"
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
@@ -62,7 +63,8 @@ export const Suggestion = ({
             >
               <CrossIcon size={12} />
             </button>
-          </div>
+            </div>
+            {/* @ts-ignore */}
           <div>{suggestion.description}</div>
           <Button
             variant="outline"

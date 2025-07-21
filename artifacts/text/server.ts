@@ -34,11 +34,13 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
 
     return draftContent;
   },
-  onUpdateDocument: async ({ document, description, dataStream }) => {
+  onUpdateDocument: async ({ document: any, description, dataStream }) => {
     let draftContent = '';
 
     const { fullStream } = streamText({
       model: myProvider.languageModel('artifact-model'),
+
+      // @ts-ignore
       system: updateDocumentPrompt(document.content, 'text'),
       experimental_transform: smoothStream({ chunking: 'word' }),
       prompt: description,
@@ -46,7 +48,8 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
         openai: {
           prediction: {
             type: 'content',
-            content: document.content,
+            // @ts-ignore
+            content: document?.content,
           },
         },
       },

@@ -2,7 +2,6 @@
 import cx from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
-import type { Vote } from '@/lib/db/schema';
 import { DocumentToolCall, DocumentToolResult } from './document';
 import { PencilEditIcon, SparklesIcon } from './icons';
 import { Markdown } from './markdown';
@@ -35,7 +34,7 @@ const PurePreviewMessage = ({
 }: {
   chatId: string;
   message: ChatMessage;
-  vote: Vote | undefined;
+  vote: any | undefined;
   isLoading: boolean;
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];

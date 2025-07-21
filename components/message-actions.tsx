@@ -1,7 +1,6 @@
 import { useSWRConfig } from 'swr';
 import { useCopyToClipboard } from 'usehooks-ts';
 
-import type { Vote } from '@/lib/db/schema';
 
 import { CopyIcon, ThumbDownIcon, ThumbUpIcon } from './icons';
 import { Button } from './ui/button';
@@ -24,7 +23,7 @@ export function PureMessageActions({
 }: {
   chatId: string;
   message: ChatMessage;
-  vote: Vote | undefined;
+  vote: any | undefined;
   isLoading: boolean;
 }) {
   const { mutate } = useSWRConfig();

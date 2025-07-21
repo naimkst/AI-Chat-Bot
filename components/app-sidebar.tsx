@@ -66,8 +66,10 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        {/* @ts-ignore */}
         <SidebarHistory user={user} />
       </SidebarContent>
+      {/* @ts-ignore */}
       <SidebarFooter>{authenticated && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>
   );

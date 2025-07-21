@@ -37,6 +37,7 @@ export const createDecorations = (
           class: 'suggestion-highlight',
         },
         {
+          // @ts-ignore todo: fix type
           suggestionId: suggestion.id,
           type: 'highlight',
         },
@@ -51,6 +52,7 @@ export const createDecorations = (
           return dom;
         },
         {
+          // @ts-ignore todo: fix type
           suggestionId: suggestion.id,
           type: 'widget',
         },

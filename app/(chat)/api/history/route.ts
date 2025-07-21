@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
     ).toResponse();
   }
 
-  const session = await auth();
+  // const session = await auth();
 
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:chat').toResponse();
-  }
+  // if (!session?.user) {
+  //   return new ChatSDKError('unauthorized:chat').toResponse();
+  // }
 
   // const chats = await getChatsByUserId({
   //   id: session.user.id,

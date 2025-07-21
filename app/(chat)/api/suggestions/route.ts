@@ -12,25 +12,25 @@ export async function GET(request: Request) {
     ).toResponse();
   }
 
-  const session = await auth();
+  // const session = await auth();
 
-  if (!session?.user) {
-    return new ChatSDKError('unauthorized:suggestions').toResponse();
-  }
+  // if (!session?.user) {
+  //   return new ChatSDKError('unauthorized:suggestions').toResponse();
+  // }
 
-  const suggestions = await getSuggestionsByDocumentId({
-    documentId,
-  });
+  // const suggestions = await getSuggestionsByDocumentId({
+  //   documentId,
+  // });
 
-  const [suggestion] = suggestions;
+  // const [suggestion] = suggestions;
 
-  if (!suggestion) {
-    return Response.json([], { status: 200 });
-  }
+  // if (!suggestion) {
+  //   return Response.json([], { status: 200 });
+  // }
 
-  if (suggestion.userId !== session.user.id) {
-    return new ChatSDKError('forbidden:api').toResponse();
-  }
+  // if (suggestion.userId !== session.user.id) {
+  //   return new ChatSDKError('forbidden:api').toResponse();
+  // }
 
-  return Response.json(suggestions, { status: 200 });
+  // return Response.json(suggestions, { status: 200 });
 }

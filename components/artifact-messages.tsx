@@ -1,5 +1,4 @@
 import { PreviewMessage, ThinkingMessage } from './message';
-import type { Vote } from '@/lib/db/schema';
 import { memo } from 'react';
 import equal from 'fast-deep-equal';
 import type { UIArtifact } from './artifact';
@@ -11,7 +10,7 @@ import type { ChatMessage } from '@/lib/types';
 interface ArtifactMessagesProps {
   chatId: string;
   status: UseChatHelpers<ChatMessage>['status'];
-  votes: Array<Vote> | undefined;
+  votes: Array<any> | undefined;
   messages: ChatMessage[];
   setMessages: UseChatHelpers<ChatMessage>['setMessages'];
   regenerate: UseChatHelpers<ChatMessage>['regenerate'];

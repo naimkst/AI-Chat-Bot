@@ -41,7 +41,7 @@ export default function Page() {
       router.refresh();
       router.push('/');
     }
-  }, [state.status]);
+  }, [state.status, router]);
 
   const handleSubmit = async (formData: FormData) => {
     const email = formData.get('email') as string;

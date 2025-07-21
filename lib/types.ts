@@ -6,7 +6,6 @@ import type { requestSuggestions } from './ai/tools/request-suggestions';
 import type { InferUITool, UIMessage } from 'ai';
 
 import type { ArtifactKind } from '@/components/artifact';
-import type { Suggestion } from './db/schema';
 
 export type DataPart = { type: 'append-message'; message: string };
 
@@ -35,7 +34,7 @@ export type CustomUIDataTypes = {
   imageDelta: string;
   sheetDelta: string;
   codeDelta: string;
-  suggestion: Suggestion;
+  suggestion: any;
   appendMessage: string;
   id: string;
   title: string;

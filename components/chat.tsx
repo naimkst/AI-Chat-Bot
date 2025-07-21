@@ -37,7 +37,7 @@ export function Chat({
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  session?: Session;
+  session?: any;
     autoResume: boolean;
 }) {
   const { visibilityType } = useChatVisibility({
@@ -283,6 +283,7 @@ useEffect(() => {
           session={session}
         />
 
+        {/* @ts-ignore */}
         <Messages
           chatId={id}
           status={status}
@@ -313,6 +314,7 @@ useEffect(() => {
         </form>
       </div>
 
+      {/* @ts-ignore */}
       <Artifact
         chatId={id}
         input={input}

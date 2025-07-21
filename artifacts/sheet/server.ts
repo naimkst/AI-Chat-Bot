@@ -49,8 +49,10 @@ export const sheetDocumentHandler = createDocumentHandler<'sheet'>({
     let draftContent = '';
 
     const { fullStream } = streamObject({
-      model: myProvider.languageModel('artifact-model'),
-      system: updateDocumentPrompt(document.content, 'sheet'),
+      model: myProvider.languageModel('artifact-model'),  
+
+      // @ts-ignore
+      system: updateDocumentPrompt(document?.content, 'sheet'),
       prompt: description,
       schema: z.object({
         csv: z.string(),

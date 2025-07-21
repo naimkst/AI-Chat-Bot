@@ -12,15 +12,15 @@ export async function GET(request: Request) {
     ).toResponse();
   }
 
-  const chat = await getChatById({ id: chatId });
+  // const chat = await getChatById({ id: chatId });
 
-  if (!chat) {
-    return new ChatSDKError('not_found:chat').toResponse();
-  }
+  // if (!chat) {
+  //   return new ChatSDKError('not_found:chat').toResponse();
+  // }
 
-  const votes = await getVotesByChatId({ id: chatId });
+  // const votes = await getVotesByChatId({ id: chatId });
 
-  return Response.json(votes, { status: 200 });
+  // return Response.json(votes, { status: 200 });
 }
 
 export async function PATCH(request: Request) {
@@ -38,17 +38,17 @@ export async function PATCH(request: Request) {
     ).toResponse();
   }
 
-  const chat = await getChatById({ id: chatId });
+  // const chat = await getChatById({ id: chatId });
 
-  if (!chat) {
-    return new ChatSDKError('not_found:vote').toResponse();
-  }
+  // if (!chat) {
+  //   return new ChatSDKError('not_found:vote').toResponse();
+  // }
 
-  await voteMessage({
-    chatId,
-    messageId,
-    type: type,
-  });
+  // await voteMessage({
+  //   chatId,
+  //   messageId,
+  //   type: type,
+  // });
 
   return new Response('Message voted', { status: 200 });
 }

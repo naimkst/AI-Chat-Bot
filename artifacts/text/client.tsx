@@ -10,12 +10,11 @@ import {
   RedoIcon,
   UndoIcon,
 } from '@/components/icons';
-import type { Suggestion } from '@/lib/db/schema';
 import { toast } from 'sonner';
 import { getSuggestions } from '../actions';
 
 interface TextArtifactMetadata {
-  suggestions: Array<Suggestion>;
+  suggestions: Array<any>;
 }
 
 export const textArtifact = new Artifact<'text', TextArtifactMetadata>({

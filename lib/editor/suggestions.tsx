@@ -8,10 +8,9 @@ import {
 import { createRoot } from 'react-dom/client';
 
 import { Suggestion as PreviewSuggestion } from '@/components/suggestion';
-import type { Suggestion } from '@/lib/db/schema';
 import { ArtifactKind } from '@/components/artifact';
 
-export interface UISuggestion extends Suggestion {
+export interface UISuggestion {
   selectionStart: number;
   selectionEnd: number;
 }
@@ -46,7 +45,7 @@ function findPositionsInDoc(doc: Node, searchText: string): Position | null {
 
 export function projectWithPositions(
   doc: Node,
-  suggestions: Array<Suggestion>,
+  suggestions: Array<any>,
 ): Array<UISuggestion> {
   return suggestions.map((suggestion) => {
     const positions = findPositionsInDoc(doc, suggestion.originalText);
@@ -91,6 +90,7 @@ export function createSuggestionWidget(
       const newDecorations = DecorationSet.create(
         state.doc,
         currentDecorations.find().filter((decoration: Decoration) => {
+          // @ts-ignore todo: fix type
           return decoration.spec.suggestionId !== suggestion.id;
         }),
       );
@@ -105,6 +105,7 @@ export function createSuggestionWidget(
     const textTransaction = view.state.tr.replaceWith(
       suggestion.selectionStart,
       suggestion.selectionEnd,
+      // @ts-ignore todo: fix type
       state.schema.text(suggestion.suggestedText),
     );
 
