@@ -360,7 +360,7 @@ function PureAttachmentsButton({
         event.preventDefault();
         fileInputRef.current?.click();
       }}
-      disabled={status !== 'ready'}
+      // disabled={status !== 'ready'}
       variant="ghost"
     >
       <PaperclipIcon size={14} />

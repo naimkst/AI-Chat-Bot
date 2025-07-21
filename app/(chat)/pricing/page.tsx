@@ -7,7 +7,7 @@ import { toast } from '@/components/toast';
 
 type Plan = {
   name: string;
-  price: number;
+  price: any;
   features: string[];
   stripePriceId?: string;
   popular?: boolean;
