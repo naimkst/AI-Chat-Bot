@@ -54,18 +54,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${geist.variable} ${geistMono.variable}`}
-    >
-      {/* <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: THEME_COLOR_SCRIPT,
-          }}
-        />
-      </head> */}
       <body className="antialiased">
         <ThemeProvider
           attribute="class"
@@ -77,6 +65,5 @@ export default async function RootLayout({
          {children}
         </ThemeProvider>
       </body>
-    </html>
   );
 }
