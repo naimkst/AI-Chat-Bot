@@ -17,7 +17,7 @@ export const PreviewAttachment = ({
     <div data-testid="input-attachment-preview" className="flex flex-col gap-2">
       <div className="w-20 h-16 aspect-video bg-muted rounded-md relative flex items-center justify-center overflow-hidden">
         {isUploading ? (
-          <div className="w-full h-full flex items-center justify-center text-zinc-400">
+          <div className="size-full flex items-center justify-center text-zinc-400">
             <LoaderIcon size={24} />
           </div>
         ) : contentType?.includes('png') || contentType?.includes('jpg') || contentType?.includes('jpeg') || contentType?.includes('webp') || contentType?.includes('gif') && url ? (
@@ -26,7 +26,7 @@ export const PreviewAttachment = ({
             key={url}
             src={url}
             alt={name ?? 'Image preview'}
-            className="rounded-md w-full h-full object-cover"
+            className="rounded-md size-full object-cover"
           />
         ) : (
           <div className="flex items-center justify-center text-zinc-400">
