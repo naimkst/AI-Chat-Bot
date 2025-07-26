@@ -239,15 +239,11 @@ useEffect(() => {
   
 useEffect(() => {
   if (message && message.trim().length > 0) {
-    // Send only if there's no current message being processed
-    sendMessage({
+     sendMessage({
       parts: [{ type: 'text', text: message }],
       userId: user?.id,
     });
-    // If you want this to only happen once, consider using a local state
-    // to remember you already sent it, so it doesn't send again on re-render.
   }
-  // eslint-disable-next-line
 }, [message, user?.id]);
   
 
