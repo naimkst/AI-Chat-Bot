@@ -10,6 +10,13 @@ import { SubmitButton } from '@/components/submit-button';
 import { register, type RegisterActionState } from '../actions';
 import { toast } from '@/components/toast';
 
+
+export const metadata = {
+  title: 'Signup | Caddie AI',
+  description: 'Create an account with your email and password',
+};
+
+
 export default function Page() {
   const router = useRouter();
 
@@ -48,7 +55,7 @@ const handleSubmit = async (formData: FormData) => {
   const name = formData.get('name');
 
   try {
-    const response = await fetch('/api/register', {
+    const response = await fetch('/api/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -72,6 +79,7 @@ const handleSubmit = async (formData: FormData) => {
 };
 
   return (
+    <>
     <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
       <div className="w-full max-w-md overflow-hidden rounded-2xl gap-12 flex flex-col">
         <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
@@ -94,6 +102,7 @@ const handleSubmit = async (formData: FormData) => {
           </p>
         </AuthForm>
       </div>
-    </div>
+      </div>
+      </>
   );
 }

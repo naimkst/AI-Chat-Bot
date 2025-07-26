@@ -115,3 +115,10 @@ export function getTextFromMessage(message: ChatMessage): string {
     .map((part) => part.text)
     .join('');
 }
+
+export function getSignupMetadata(name = "Caddie AI") {
+  return {
+    title: `Signup | ${name}`,
+    description: `Create your account for ${name}`,
+  };
+}

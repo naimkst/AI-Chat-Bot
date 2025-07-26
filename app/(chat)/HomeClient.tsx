@@ -11,16 +11,14 @@ import { useEffect, useState } from 'react';
 import { useLoader } from '@/store/useLoaderStore';
 
 export default function Page() {
-
   const [messages, setMessages] = useState([]);
-
-  //get id from url query
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const chatId = "";
   const { loading, authenticated, user } = useAuth();
-  
-     const { loader }: any = useLoader();
+  const { loader }: any = useLoader();
+
+  console.log("searchParams=======", searchParams.get('message'))
 
 
 useEffect(() => {
@@ -45,7 +43,8 @@ useEffect(() => {
   return (
     <>
       <ClientOnly>
-      <Chat
+        <Chat
+        message={searchParams.get('message')}
         key={id? id : chatId}
         id={id? id : chatId} 
         initialMessages={messages}

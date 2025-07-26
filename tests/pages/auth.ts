@@ -10,7 +10,7 @@ export class AuthPage {
   }
 
   async gotoRegister() {
-    await this.page.goto('/register');
+    await this.page.goto('/signup');
     await expect(this.page.getByRole('heading')).toContainText('Sign Up');
   }
 

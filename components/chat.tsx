@@ -31,6 +31,7 @@ export function Chat({
   isReadonly,
   session,
   autoResume,
+  message
 }: {
   id: string;
   initialMessages: any;
@@ -38,7 +39,8 @@ export function Chat({
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
   session?: any;
-    autoResume: boolean;
+  autoResume: boolean;
+  message?: any;
 }) {
   const { visibilityType } = useChatVisibility({
     chatId: id,
@@ -111,6 +113,7 @@ async function sendMessage(message: any) {
         message: formattedMessage,
         id: id || null, // Existing conversationId or new
       }),
+
     });
 
     // ✅ Check for message limit (403)
@@ -189,14 +192,13 @@ async function sendMessage(message: any) {
   }
 }
 
-  // You can leave these as no-ops or implement if needed:
-  const stop = async () => {};
-  const regenerate = async () => {};
-  const resumeStream = async () => {};
+const stop = async () => {};
+const regenerate = async () => {};
+const resumeStream = async () => {};
 
-  // Everything else in your component stays the same!
+// Everything else in your component stays the same!
 
-  const searchParams = useSearchParams();
+const searchParams = useSearchParams();
 
 
 useEffect(() => {
@@ -235,7 +237,18 @@ useEffect(() => {
 }, [id, loader]);
   
   
-  console.log("messages========", messages)
+useEffect(() => {
+  if (message && message.trim().length > 0) {
+    // Send only if there's no current message being processed
+    sendMessage({
+      parts: [{ type: 'text', text: message }],
+      userId: user?.id,
+    });
+    // If you want this to only happen once, consider using a local state
+    // to remember you already sent it, so it doesn't send again on re-render.
+  }
+  // eslint-disable-next-line
+}, [message, user?.id]);
   
 
   // useEffect(() => {

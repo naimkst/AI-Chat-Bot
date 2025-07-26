@@ -15,7 +15,7 @@ test.describe
         throw new Error('Failed to load page');
       }
 
-      let request = response.request();
+      let request: any = response.request();
 
       const chain = [];
 
@@ -57,7 +57,7 @@ test.describe
         throw new Error('Failed to load page');
       }
 
-      let request = response.request();
+      let request: any = response.request();
 
       const chain = [];
 
@@ -75,10 +75,10 @@ test.describe
       await expect(page).toHaveURL('/login');
     });
 
-    test('Allow navigating to /register as guest user', async ({ page }) => {
-      await page.goto('/register');
-      await page.waitForURL('/register');
-      await expect(page).toHaveURL('/register');
+    test('Allow navigating to /signup as guest user', async ({ page }) => {
+      await page.goto('/signup');
+      await page.waitForURL('/signup');
+      await expect(page).toHaveURL('/signup');
     });
 
     test('Do not show email in user menu for guest user', async ({ page }) => {
@@ -166,13 +166,13 @@ test.describe
       await expect(authMenuItem).toContainText('Sign out');
     });
 
-    test('Do not navigate to /register for non-guest users', async ({
+    test('Do not navigate to /signup for non-guest users', async ({
       page,
     }) => {
       await authPage.login(testUser.email, testUser.password);
       await page.waitForURL('/');
 
-      await page.goto('/register');
+      await page.goto('/signup');
       await expect(page).toHaveURL('/');
     });
 
