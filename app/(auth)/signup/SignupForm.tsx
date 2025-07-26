@@ -55,7 +55,7 @@ const handleSubmit = async (formData: FormData) => {
   const name = formData.get('name');
 
   try {
-    const response = await fetch('/api/signup', {
+    const response = await fetch('/api/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
